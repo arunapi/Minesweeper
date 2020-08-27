@@ -4,7 +4,10 @@ public class Minesweeper{
 
   public static void main(String [] args){
     Cell[][] grid = startGame(8,5);
-    printGrid(grid);
+    printGrid(grid, true);
+    printGrid(grid, false);
+    clicked(grid,3,1);
+    printGrid(grid, false);
   }
 
   public static Cell[][] startGame(int gridSize, int numberOfMines){
@@ -32,14 +35,54 @@ public class Minesweeper{
 
   }
 
-
-  public static void printGrid(Cell[][] grid){
+  public static boolean clicked(Cell[][] grid, int row, int col){
+    if(row<0 || col<0 || row>grid.length-1 || col>grid[0].length-1){
+      return true;
+    }
+    //if clicked on null or 0 cell reveal cells until cell with value<9  
+    if(grid[row][col]==null){
+      grid[row][col] = new Cell();
+      grid[row][col].visible=true;
+      clicked(grid,row,col-1);
+      clicked(grid,row,col+1);
+      clicked(grid,row-1,col);
+      clicked(grid,row-1,col-1);
+      clicked(grid,row-1,col+1);      
+      clicked(grid,row+1,col);            
+      clicked(grid,row+1,col-1);            
+      clicked(grid,row+1,col+1);            
+    }
+    //if clicked on a mine return false
+    else if(grid[row][col].value ==9){
+      grid[row][col].visible=true;
+      return false;
+    }
+    else if(grid[row][col].value!=0){
+      grid[row][col].visible=true;
+    }
+    
+    return true;
+    //if clicked on cell with a value < 9 reveal just that
+  
+  }
+  
+  public static void printGrid(Cell[][] grid, boolean displayValues){
     for(int i=0;i< grid.length;i++){
       for(int j=0;j<grid[i].length;j++){
 	if(grid[i][j]!=null)
-	  System.out.print(grid[i][j].value+" ");
+	  if(displayValues)
+	    System.out.print(grid[i][j].value+" ");
+	  else if(grid[i][j].visible){
+	    System.out.print(grid[i][j].value+" ");
+	  }
+	  else{
+	    System.out.print("- ");
+	  }
 	else{
-	  System.out.print("0 ");
+	  if(displayValues)
+	    System.out.print("0 ");
+	  else
+	    System.out.print("- ");
 	}
       }
       System.out.println();
@@ -52,17 +95,17 @@ public class Minesweeper{
 
 class Cell{
     int value;
-    boolean hidden;
+    boolean visible;
     public Cell(){
       this.value = 0;
-      hidden = true;
+      visible = false;
     }
     public int getValue(){
       return value;
     }
     
     public void unhide(){
-      hidden = false;
+      visible = false;
     }
 
 }
